@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZoneVault Device Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .user-card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .uid {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    li {
+      margin: 5px 0;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>ZoneVault Device Connections</h1>
+  <div id="userList"></div>
+
+  <!-- Firebase SDK -->
+<script>
+  async function fetchUsers() {
+    const res = await fetch("http://localhost:4000/users");
+    const users = await res.json();
+
+    const userList = document.getElementById("userList");
+    userList.innerHTML = "";
+
+    users.forEach(user => {
+      const card = document.createElement("div");
+      card.className = "user-card";
+
+      let html = `<div class="uid">UID: ${user.uid}</div>`;
+      html += `<div>Email: ${user.email || "No email"}</div>`;
+      html += `<div>Devices Connected: ${user.deviceCount}</div>`;
+      html += `<ul>`;
+      user.sessions.forEach(session => {
+        html += `<li>${session.device || "Unknown Device"} (Last Active: ${new Date(session.timestamp).toLocaleString()})</li>`;
+      });
+      html += `</ul>`;
+
+      card.innerHTML = html;
+      userList.appendChild(card);
+    });
+  }
+
+  // Fetch every 5 seconds
+  setInterval(fetchUsers, 5000);
+  fetchUsers();
+</script>
+</body>
+</html>
